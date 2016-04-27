@@ -8,7 +8,7 @@ import extendReadOnly from '../utility/extend-read-only';
  * @param {Injector} $injector Prevent Circular Dependency by injecting $injector instead of $http
  * @param {Object}   $halConfiguration
  */
-export default function HalResourceClientFactory($q, $injector, $halConfiguration) {
+export default function HalResourceClientFactory($q, $injector, $halConfiguration, $log) {
   return HalResourceClient;
 
   /**
@@ -27,13 +27,14 @@ export default function HalResourceClientFactory($q, $injector, $halConfiguratio
       extendReadOnly(self, {
         $request: $request,
         $get: $get,
+        $getCollection: $getCollection,
         $post: $post,
         $put: $put,
         $patch: $patch,
         $delete: $delete,
         $del: $delete,
         $link: $link,
-        $unlink: $unlink,
+        $unlink: $unlink
       });
     })();
 
@@ -95,7 +96,9 @@ export default function HalResourceClientFactory($q, $injector, $halConfiguratio
         }));
       }
 
-      return $q.reject(new Error('link "' + rel + '" is undefined'));
+      var error = new Error('link "' + rel + '" is undefined');
+      $log.error(error);
+      return $q.reject(error);
     }
 
     /**
@@ -109,6 +112,26 @@ export default function HalResourceClientFactory($q, $injector, $halConfiguratio
      */
     function $get(rel, urlParams, options) {
       return $request('GET', rel, urlParams, undefined, options);
+    }
+
+    /**
+     * Execute a HTTP GET request against a link or
+     * load an embedded resource
+     *
+     * @param {String}      rel
+     * @param {Object|null} urlParams
+     * @param {Object}      options
+     * @return {Promise}
+     */
+    function $getCollection(rel, urlParams, options) {
+      return $get(rel, urlParams, options)
+        .then(resource => {
+          if(!resource.$hasEmbedded(rel)){
+            return [];
+          }else{
+            return resource.$request().$get(rel);
+          }
+        });
     }
 
     /**
@@ -208,4 +231,5 @@ HalResourceClientFactory.$inject = [
   '$q',
   '$injector',
   '$halConfiguration',
+  '$log'
 ];
