@@ -46,6 +46,8 @@ export default function ResourceFactory(HalResourceClient, $halConfiguration) {
         $link: $link,
         $request: $request,
         $response: $response,
+        $put: $put,
+        $delete: $delete
       });
     })();
 
@@ -60,7 +62,8 @@ export default function ResourceFactory(HalResourceClient, $halConfiguration) {
         if(isMetaProperty(propertyName)) {
           continue;
         }
-        defineReadOnly(self, propertyName, data[propertyName]);
+        self[propertyName] = data[propertyName];
+        //defineReadOnly(self, propertyName, data[propertyName]);
       }
     }
 
@@ -249,6 +252,28 @@ export default function ResourceFactory(HalResourceClient, $halConfiguration) {
      */
     function $request() {
       return client;
+    }
+
+    /**
+     * Execute a HTTP DELETE request on self
+     *
+     * @param {Object|null} urlParams
+     * @param {Object}      options
+     * @return {Promise}
+     */
+    function $delete(urlParams, options) {
+      return client.$delete($halConfiguration.selfLink, urlParams, options);
+    }
+
+    /**
+     * Execute a HTTP PUT request on self, with self as a payload
+     *
+     * @param {Object|null} urlParams
+     * @param {Object}      options
+     * @return {Promise}
+     */
+    function $put(urlParams, options) {
+      return client.$put($halConfiguration.selfLink, urlParams, this, options);
     }
   }
 }

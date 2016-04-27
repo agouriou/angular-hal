@@ -8,7 +8,7 @@ import extendReadOnly from '../utility/extend-read-only';
  * @param {Injector} $injector Prevent Circular Dependency by injecting $injector instead of $http
  * @param {Object}   $halConfiguration
  */
-export default function HalResourceClientFactory($q, $injector, $halConfiguration) {
+export default function HalResourceClientFactory($q, $injector, $halConfiguration, $log) {
   return HalResourceClient;
 
   /**
@@ -95,7 +95,9 @@ export default function HalResourceClientFactory($q, $injector, $halConfiguratio
         }));
       }
 
-      return $q.reject(new Error('link "' + rel + '" is undefined'));
+      var error = new Error('link "' + rel + '" is undefined');
+      $log.error(error);
+      return $q.reject(error);
     }
 
     /**
@@ -208,4 +210,5 @@ HalResourceClientFactory.$inject = [
   '$q',
   '$injector',
   '$halConfiguration',
+  '$log'
 ];
