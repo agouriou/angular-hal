@@ -33,7 +33,7 @@ export default function HalResourceClientFactory($q, $injector, $halConfiguratio
         $delete: $delete,
         $del: $delete,
         $link: $link,
-        $unlink: $unlink,
+        $unlink: $unlink
       });
     })();
 

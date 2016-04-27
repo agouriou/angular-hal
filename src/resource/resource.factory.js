@@ -47,7 +47,8 @@ export default function ResourceFactory(HalResourceClient, $halConfiguration) {
         $request: $request,
         $response: $response,
         $put: $put,
-        $delete: $delete
+        $delete: $delete,
+        $getCollection: $getCollection
       });
     })();
 
@@ -275,9 +276,32 @@ export default function ResourceFactory(HalResourceClient, $halConfiguration) {
     function $put(urlParams, options) {
       return client.$put($halConfiguration.selfLink, urlParams, this, options);
     }
+
+    /**
+     * Execute a HTTP GET request against a link or
+     * load an embedded resource
+     *
+     * @param {String}      rel
+     * @param {Object|null} urlParams
+     * @param {Object}      options
+     * @return {Promise}
+     */
+    function $getCollection(rel, urlParams, options) {
+      return client.$get(rel, urlParams, options)
+        .then(response => {
+          return new Resource(response.data, response);
+        })
+        .then(resource => {
+          if(!resource.$hasEmbedded(rel)){
+            return [];
+          }else{
+            return resource.$request().$get(rel);
+          }
+        });
+    }
   }
 }
 ResourceFactory.$inject = [
   'HalResourceClient',
-  '$halConfiguration',
+  '$halConfiguration'
 ];
