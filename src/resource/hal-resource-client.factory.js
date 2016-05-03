@@ -27,6 +27,7 @@ export default function HalResourceClientFactory($q, $injector, $halConfiguratio
       extendReadOnly(self, {
         $request: $request,
         $get: $get,
+        $getCollection: $getCollection,
         $post: $post,
         $put: $put,
         $patch: $patch,
@@ -111,6 +112,26 @@ export default function HalResourceClientFactory($q, $injector, $halConfiguratio
      */
     function $get(rel, urlParams, options) {
       return $request('GET', rel, urlParams, undefined, options);
+    }
+
+    /**
+     * Execute a HTTP GET request against a link or
+     * load an embedded resource
+     *
+     * @param {String}      rel
+     * @param {Object|null} urlParams
+     * @param {Object}      options
+     * @return {Promise}
+     */
+    function $getCollection(rel, urlParams, options) {
+      return $get(rel, urlParams, options)
+        .then(resource => {
+          if(!resource.$hasEmbedded(rel)){
+            return [];
+          }else{
+            return resource.$request().$get(rel);
+          }
+        });
     }
 
     /**
