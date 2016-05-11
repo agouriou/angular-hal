@@ -266,14 +266,26 @@ export default function ResourceFactory(HalResourceClient, $halConfiguration) {
     }
 
     /**
-     * Execute a HTTP PUT request on self, with self as a payload
+     * Execute a HTTP PUT request on self
      *
      * @param {Object|null} urlParams
      * @param {Object}      options
      * @return {Promise}
      */
-    function $put(urlParams, options) {
-      return client.$put($halConfiguration.selfLink, urlParams, this, options);
+    function $put(payload, urlParams, options) {
+      return client.$put($halConfiguration.selfLink, urlParams, payload, options);
+    }
+
+    /**
+     * Execute a HTTP GET request on self
+     *
+     * @param {String}      rel
+     * @param {Object|null} urlParams
+     * @param {Object}      options
+     * @return {Promise}
+     */
+    function $get(urlParams, options) {
+      return client.$get($halConfiguration.selfLink, urlParams, options);
     }
 
   }
