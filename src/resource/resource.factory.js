@@ -10,8 +10,9 @@ import normalizeLink from '../utility/normalize-link';
  *
  * @param {Function} HalResourceClient
  * @param {Object}   $halConfiguration
+ * @param {Log}      $log
  */
-export default function ResourceFactory(HalResourceClient, $halConfiguration) {
+export default function ResourceFactory(HalResourceClient, $halConfiguration, $log) {
   return Resource;
 
   /**
@@ -47,7 +48,8 @@ export default function ResourceFactory(HalResourceClient, $halConfiguration) {
         $request: $request,
         $response: $response,
         $put: $put,
-        $delete: $delete
+        $delete: $delete,
+        $get: $get
       });
     })();
 
@@ -172,11 +174,7 @@ export default function ResourceFactory(HalResourceClient, $halConfiguration) {
      * @return {String}
      */
     function $href(rel, parameters) {
-      if(!$hasLink(rel)) {
-        throw new Error('link "' + rel + '" is undefined');
-      }
-
-      var link = links[rel]
+      var link = $link(rel)
         , href = link.href;
 
       if(Array.isArray(link)) {
@@ -216,6 +214,11 @@ export default function ResourceFactory(HalResourceClient, $halConfiguration) {
         throw new Error('link "' + rel + '" is undefined');
       }
       var link = links[rel];
+
+      if(typeof link.deprecation !== 'undefined') {
+        $log.warn(`The link "${rel}" is marked as deprecated with the value "${link.deprecation}".`);
+      }
+
       return link;
     }
 
@@ -292,5 +295,6 @@ export default function ResourceFactory(HalResourceClient, $halConfiguration) {
 }
 ResourceFactory.$inject = [
   'HalResourceClient',
-  '$halConfiguration'
+  '$halConfiguration',
+  '$log'
 ];
