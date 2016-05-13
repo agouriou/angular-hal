@@ -64,8 +64,7 @@ export default function ResourceFactory(HalResourceClient, $halConfiguration, $l
         if(isMetaProperty(propertyName)) {
           continue;
         }
-        self[propertyName] = data[propertyName];
-        //defineReadOnly(self, propertyName, data[propertyName]);
+        defineReadOnly(self, propertyName, data[propertyName]);
       }
     }
 
