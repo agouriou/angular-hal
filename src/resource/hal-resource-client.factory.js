@@ -34,7 +34,8 @@ export default function HalResourceClientFactory($q, $injector, $halConfiguratio
         $delete: $delete,
         $del: $delete,
         $link: $link,
-        $unlink: $unlink
+        $unlink: $unlink,
+        $reloadSelf: $reloadSelf
       });
     })();
 
@@ -223,6 +224,21 @@ export default function HalResourceClientFactory($q, $injector, $halConfiguratio
      */
     function toStringItem(item) {
       return item.toString();
+    }
+
+    /**
+     * Execute a HTTP GET request on self
+     *
+     * @param {String}      rel
+     * @param {Object|null} urlParams
+     * @param {Object}      options
+     * @return {Promise}
+     */
+    function $reloadSelf(urlParams, options) {
+      return $http(angular.extend({}, options, {
+        method: 'GET',
+        url: resource.$href($halConfiguration.selfLink, urlParams)
+      }));
     }
   }
 }
