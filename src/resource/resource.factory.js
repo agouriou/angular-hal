@@ -48,8 +48,7 @@ export default function ResourceFactory(HalResourceClient, $halConfiguration, $l
         $request: $request,
         $response: $response,
         $put: $put,
-        $delete: $delete,
-        $get: $get
+        $delete: $delete
       });
     })();
 
@@ -276,18 +275,6 @@ export default function ResourceFactory(HalResourceClient, $halConfiguration, $l
      */
     function $put(payload, urlParams, options) {
       return client.$put($halConfiguration.selfLink, urlParams, payload, options);
-    }
-
-    /**
-     * Execute a HTTP GET request on self
-     *
-     * @param {String}      rel
-     * @param {Object|null} urlParams
-     * @param {Object}      options
-     * @return {Promise}
-     */
-    function $get(urlParams, options) {
-      return client.$get($halConfiguration.selfLink, urlParams, options);
     }
 
   }
