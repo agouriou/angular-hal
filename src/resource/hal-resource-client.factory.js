@@ -7,6 +7,7 @@ import extendReadOnly from '../utility/extend-read-only';
  * @param {Q}        $q
  * @param {Injector} $injector Prevent Circular Dependency by injecting $injector instead of $http
  * @param {Object}   $halConfiguration
+ * @param (Log)      $log
  */
 export default function HalResourceClientFactory($q, $injector, $halConfiguration, $log) {
   return HalResourceClient;
@@ -35,7 +36,9 @@ export default function HalResourceClientFactory($q, $injector, $halConfiguratio
         $del: $delete,
         $link: $link,
         $unlink: $unlink,
-        $reloadSelf: $reloadSelf
+        $reloadSelf: $reloadSelf,
+        $putSelf: $putSelf,
+        $deleteSelf: $deleteSelf
       });
     })();
 
@@ -58,25 +61,25 @@ export default function HalResourceClientFactory($q, $injector, $halConfiguratio
       body = body || null;
       options = options || {};
 
-      if(method === 'GET' &&
-          rel === $halConfiguration.selfLink) {
+      if (method === 'GET' &&
+        rel === $halConfiguration.selfLink) {
         return $q.resolve(resource);
       }
 
-      if(resource.$hasEmbedded(rel) &&
+      if (resource.$hasEmbedded(rel) &&
         Array.isArray(embedded[rel])) {
         promises = [];
-        for(var i = 0; i < embedded[rel].length; i++) {
+        for (var i = 0; i < embedded[rel].length; i++) {
           promises.push(embedded[rel][i].$request().$request(method, 'self', urlParams, body, options));
         }
         return $q.all(promises);
       }
 
-      if(resource.$hasEmbedded(rel)) {
+      if (resource.$hasEmbedded(rel)) {
         return embedded[rel].$request().$request(method, 'self', urlParams, body, options);
       }
 
-      if(resource.$hasLink(rel)) {
+      if (resource.$hasLink(rel)) {
         var url = resource.$href(rel, urlParams);
 
         angular.extend(options, {
@@ -84,9 +87,9 @@ export default function HalResourceClientFactory($q, $injector, $halConfiguratio
           data: body,
         });
 
-        if(Array.isArray(url)) {
+        if (Array.isArray(url)) {
           promises = [];
-          for(var j = 0; j < url.length; j++) {
+          for (var j = 0; j < url.length; j++) {
             promises.push($http(angular.extend({}, options, {url: url[j]})));
           }
           return $q.all(promises);
@@ -127,9 +130,9 @@ export default function HalResourceClientFactory($q, $injector, $halConfiguratio
     function $getCollection(rel, urlParams, options) {
       return $get(rel, urlParams, options)
         .then(resource => {
-          if(!resource.$hasEmbedded(rel)){
+          if (!resource.$hasEmbedded(rel)) {
             return [];
-          }else{
+          } else {
             return resource.$request().$get(rel);
           }
         });
@@ -240,6 +243,29 @@ export default function HalResourceClientFactory($q, $injector, $halConfiguratio
         url: resource.$href($halConfiguration.selfLink, urlParams)
       }));
     }
+
+    /**
+     * Execute a HTTP DELETE request on self
+     *
+     * @param {Object|null} urlParams
+     * @param {Object}      options
+     * @return {Promise}
+     */
+    function $deleteSelf(urlParams, options) {
+      return $delete($halConfiguration.selfLink, urlParams, options);
+    }
+
+    /**
+     * Execute a HTTP PUT request on self
+     *
+     * @param {Object|null} urlParams
+     * @param {Object}      payload
+     * @param {Object}      options
+     * @return {Promise}
+     */
+    function $putSelf(urlParams, payload, options) {
+      return $put($halConfiguration.selfLink, urlParams, payload, options);
+    }
   }
 }
 
@@ -249,3 +275,4 @@ HalResourceClientFactory.$inject = [
   '$halConfiguration',
   '$log'
 ];
+

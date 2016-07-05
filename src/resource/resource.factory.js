@@ -46,9 +46,7 @@ export default function ResourceFactory(HalResourceClient, $halConfiguration, $l
         $meta: $meta,
         $link: $link,
         $request: $request,
-        $response: $response,
-        $put: $put,
-        $delete: $delete
+        $response: $response
       });
     })();
 
@@ -254,33 +252,10 @@ export default function ResourceFactory(HalResourceClient, $halConfiguration, $l
     function $request() {
       return client;
     }
-
-    /**
-     * Execute a HTTP DELETE request on self
-     *
-     * @param {Object|null} urlParams
-     * @param {Object}      options
-     * @return {Promise}
-     */
-    function $delete(urlParams, options) {
-      return client.$delete($halConfiguration.selfLink, urlParams, options);
-    }
-
-    /**
-     * Execute a HTTP PUT request on self
-     *
-     * @param {Object|null} urlParams
-     * @param {Object}      options
-     * @return {Promise}
-     */
-    function $put(payload, urlParams, options) {
-      return client.$put($halConfiguration.selfLink, urlParams, payload, options);
-    }
-
   }
 }
 ResourceFactory.$inject = [
   'HalResourceClient',
   '$halConfiguration',
-  '$log',
+  '$log'
 ];
