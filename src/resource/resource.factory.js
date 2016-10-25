@@ -12,7 +12,7 @@ import normalizeLink from '../utility/normalize-link';
  * @param {Object}   $halConfiguration
  * @param {Log}      $log
  */
-export default function ResourceFactory(HalResourceClient, $halConfiguration, $log) {
+export default function ResourceFactory(HalResourceClient, $halConfiguration, $log, $httpParamSerializer) {
   return Resource;
 
   /**
@@ -189,6 +189,11 @@ export default function ResourceFactory(HalResourceClient, $halConfiguration, $l
         if(typeof link.templated !== 'undefined' &&
           link.templated) {
           href = generateUrl(link.href, parameters);
+        } else if(parameters){
+          const params = $httpParamSerializer(parameters);
+          if(params && params !== ''){
+            href += '?' + params;
+          }
         }
 
         href = $halConfiguration.urlTransformer(href);
@@ -196,6 +201,8 @@ export default function ResourceFactory(HalResourceClient, $halConfiguration, $l
 
       return href;
     }
+
+
 
     /**
      * Get a link
@@ -258,4 +265,5 @@ ResourceFactory.$inject = [
   'HalResourceClient',
   '$halConfiguration',
   '$log',
+  '$httpParamSerializer',
 ];

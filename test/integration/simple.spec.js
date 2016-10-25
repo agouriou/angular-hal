@@ -286,6 +286,30 @@ describe('simple', function () {
     $httpBackend.flush();
   });
 
+  it('should get build href from a non templated url', function () {
+    $httpBackend
+      .expect('GET', 'https://example.com/')
+      .respond({
+        root: true,
+        _links: {
+          self: '/',
+          item: '/item'
+        },
+      });
+
+    halClient.$get('https://example.com/').then(function (resource) {
+      expect(toObject(resource)).toEqual({
+        root: true,
+      });
+
+      expect(resource.$href('item', {
+        id: 1, sometext: 'coucou'
+      })).toEqual('https://example.com/item?id=1&sometext=coucou');
+    });
+
+    $httpBackend.flush();
+  });
+
 
   it('should get response from $res', function () {
     $httpBackend
